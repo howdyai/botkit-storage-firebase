@@ -78,11 +78,13 @@ function all(firebaseRef) {
 
         function success(records) {
             var list = [],
-                key;
-            for (key in Object.keys(records.val())) {
-                list.push(records.val()[key]);
-            }
-            cb(undefined, list);
+                results = records.val();
+
+            Object.keys(results).forEach(function(key) {
+                list.push(results[key]);
+            });
+
+            cb(null, list);
         }
     };
 }

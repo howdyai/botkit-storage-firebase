@@ -19,14 +19,17 @@ describe('Firebase', function() {
         refMocks = {
             teams: {
                 child: sinon.stub().returns(childMock),
+                once: sinon.stub(),
                 update: sinon.stub()
             },
             channels: {
                 child: sinon.stub().returns(childMock),
+                once: sinon.stub(),
                 update: sinon.stub()
             },
             users: {
                 child: sinon.stub().returns(childMock),
+                once: sinon.stub(),
                 update: sinon.stub()
             }
         };
@@ -114,14 +117,46 @@ describe('Firebase', function() {
 
         describe('all', function() {
 
-            beforeEach(function() {
+            var records,
+                record,
+                config;
 
+            beforeEach(function() {
+                config = {firebase_uri: 'right_here'};
+
+                record = {
+                    'walterwhite': {id: 'walterwhite', name: 'heisenberg'},
+                    'jessepinkman': {id: 'jessepinkman', name: 'capncook'}
+                };
+
+                records = {
+                    val: sinon.stub().returns(record)
+                };
             });
 
-            it('should ', function() {
+            it('should get records', function() {
+                var cb = sinon.stub(),
+                    result = [record.walterwhite, record.jessepinkman];
 
+                refMocks[method].once.callsArgWith(1, records);
+
+                Storage(config)[method].all(cb);
+                refMocks[method].once.firstCall.args[0].should.equal('value');
+                records.val.should.be.called;
+                cb.should.be.calledWith(null, result);
+            });
+
+            it('should call callback on error', function() {
+                var cb = sinon.stub(),
+                    err = new Error('OOPS');
+
+                refMocks[method].once.callsArgWith(2, err);
+
+                Storage(config)[method].all(cb);
+                refMocks[method].once.firstCall.args[0].should.equal('value');
+                records.val.should.not.be.called;
+                cb.should.be.calledWith(err);
             });
         });
     });
-
 });
