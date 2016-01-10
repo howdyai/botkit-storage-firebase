@@ -8,7 +8,7 @@ describe('Firebase', function() {
     var firebaseMock,
         childMock,
         rootRefMock,
-        refMocks,
+        refMock,
         Storage;
 
     beforeEach(function() {
@@ -16,31 +16,15 @@ describe('Firebase', function() {
             once: sinon.stub()
         };
 
-        refMocks = {
-            teams: {
-                child: sinon.stub().returns(childMock),
-                once: sinon.stub(),
-                update: sinon.stub()
-            },
-            channels: {
-                child: sinon.stub().returns(childMock),
-                once: sinon.stub(),
-                update: sinon.stub()
-            },
-            users: {
-                child: sinon.stub().returns(childMock),
-                once: sinon.stub(),
-                update: sinon.stub()
-            }
+        refMock = {
+            child: sinon.stub().returns(childMock),
+            once: sinon.stub(),
+            update: sinon.stub()
         };
 
         rootRefMock = {
-            child: sinon.stub()
+            child: sinon.stub().returns(refMock)
         };
-
-        rootRefMock.child.withArgs('teams').returns(refMocks.teams);
-        rootRefMock.child.withArgs('channels').returns(refMocks.channels);
-        rootRefMock.child.withArgs('users').returns(refMocks.users);
 
         firebaseMock = sinon.stub().returns(rootRefMock);
 
@@ -111,7 +95,7 @@ describe('Firebase', function() {
                     updateObj = {walterwhite: data};
 
                 Storage(config)[method].save(data, cb);
-                refMocks[method].update.should.be.calledWith(updateObj, cb);
+                refMock.update.should.be.calledWith(updateObj, cb);
             });
         });
 
@@ -138,10 +122,10 @@ describe('Firebase', function() {
                 var cb = sinon.stub(),
                     result = [record.walterwhite, record.jessepinkman];
 
-                refMocks[method].once.callsArgWith(1, records);
+                refMock.once.callsArgWith(1, records);
 
                 Storage(config)[method].all(cb);
-                refMocks[method].once.firstCall.args[0].should.equal('value');
+                refMock.once.firstCall.args[0].should.equal('value');
                 records.val.should.be.called;
                 cb.should.be.calledWith(null, result);
             });
@@ -150,10 +134,10 @@ describe('Firebase', function() {
                 var cb = sinon.stub(),
                     err = new Error('OOPS');
 
-                refMocks[method].once.callsArgWith(2, err);
+                refMock.once.callsArgWith(2, err);
 
                 Storage(config)[method].all(cb);
-                refMocks[method].once.firstCall.args[0].should.equal('value');
+                refMock.once.firstCall.args[0].should.equal('value');
                 records.val.should.not.be.called;
                 cb.should.be.calledWith(err);
             });
