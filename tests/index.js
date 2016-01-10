@@ -42,6 +42,11 @@ describe('Firebase', function() {
         it('should require firebase_uri', function() {
             (function() {Storage({});}).should.throw('firebase_uri is required.');
         });
+
+        it('should initialize firebase with uri', function() {
+            Storage({firebase_uri: 'crystalbluepersuation'});
+            firebaseMock.should.be.calledWith('crystalbluepersuation');
+        });
     });
 
     ['teams', 'channels', 'users'].forEach(function(method) {
