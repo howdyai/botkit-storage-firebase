@@ -135,6 +135,18 @@ describe('Firebase', function() {
                 cb.should.be.calledWith(null, result);
             });
 
+            it('should handle no records', function() {
+                var cb = sinon.stub();
+
+                records.val.returns(undefined);
+                refMock.once.callsArgWith(1, records);
+
+                Storage(config)[method].all(cb);
+                refMock.once.firstCall.args[0].should.equal('value');
+                records.val.should.be.called;
+                cb.should.be.calledWith(null, []);
+            });
+
             it('should call callback on error', function() {
                 var cb = sinon.stub(),
                     err = new Error('OOPS');

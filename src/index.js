@@ -79,6 +79,10 @@ function all(firebaseRef) {
         function success(records) {
             var results = records.val();
 
+            if (!results) {
+                return cb(null, []);
+            }
+
             var list = Object.keys(results).map(function(key) {
                 return results[key];
             });
