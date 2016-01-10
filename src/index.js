@@ -77,11 +77,10 @@ function all(firebaseRef) {
         firebaseRef.once('value', success, cb);
 
         function success(records) {
-            var list = [],
-                results = records.val();
+            var results = records.val();
 
-            Object.keys(results).forEach(function(key) {
-                list.push(results[key]);
+            var list = Object.keys(results).map(function(key) {
+                return results[key];
             });
 
             cb(null, list);
