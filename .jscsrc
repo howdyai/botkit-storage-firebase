@@ -1,0 +1,14 @@
+{
+    "preset": "google",
+    "disallowKeywords": ["with"],
+    "disallowMultipleLineBreaks": null,
+    "disallowMultipleVarDecl": null,
+    "disallowSpaceBeforeComma": true,
+    "disallowSpacesInsideObjectBrackets": null,
+    "excludeFiles": ["coverage", "node_modules"],
+    "maximumLineLength": 120,
+    "requireCamelCaseOrUpperCaseIdentifiers": null,
+    "requireCommaBeforeLineBreak": true,
+    "requireCurlyBraces": null,
+    "validateIndentation": 4
+}
