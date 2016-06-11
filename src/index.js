@@ -1,4 +1,4 @@
-var Firebase = require('firebase');
+var firebase = require('firebase');
 
 /**
  * The Botkit firebase driver
@@ -8,11 +8,7 @@ var Firebase = require('firebase');
  */
 module.exports = function(config) {
 
-    if (!config || !config.firebase_uri) {
-        throw new Error('firebase_uri is required.');
-    }
-
-    var rootRef = new Firebase(config.firebase_uri),
+    var rootRef = firebase.initializeApp(config).database().ref(),
         teamsRef = rootRef.child('teams'),
         usersRef = rootRef.child('users'),
         channelsRef = rootRef.child('channels');
@@ -44,11 +40,9 @@ module.exports = function(config) {
  */
 function get(firebaseRef) {
     return function(id, cb) {
-        firebaseRef.child(id).once('value', success, cb);
-
-        function success(records) {
-            cb(null, records.val());
-        }
+        firebaseRef.child(id).once('value').then(function(snapshot) {
+          cb(snapshot.val());
+        });
     };
 }
 
@@ -62,7 +56,7 @@ function save(firebaseRef) {
     return function(data, cb) {
         var firebase_update = {};
         firebase_update[data.id] = data;
-        firebaseRef.update(firebase_update, cb);
+        firebaseRef.update(firebase_update).then(cb);
     };
 }
 
@@ -74,9 +68,7 @@ function save(firebaseRef) {
  */
 function all(firebaseRef) {
     return function(cb) {
-        firebaseRef.once('value', success, cb);
-
-        function success(records) {
+        firebaseRef.once('value').then(function success(records) {
             var results = records.val();
 
             if (!results) {
@@ -88,6 +80,6 @@ function all(firebaseRef) {
             });
 
             cb(null, list);
-        }
+        });
     };
 }
