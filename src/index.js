@@ -3,12 +3,28 @@ var firebase = require('firebase');
 /**
  * The Botkit firebase driver
  *
- * @param {Object} config This must contain a `firebase_uri` property
+ * @param {Object} config This must contain either a `firebase_uri` property (deprecated) or a `databaseURL` property
  * @returns {{teams: {get, save, all}, channels: {get, save, all}, users: {get, save, all}}}
  */
 module.exports = function(config) {
 
-    var rootRef = firebase.initializeApp(config).database().ref(),
+    if (!config) {
+        throw new Error('configuration is required.');
+    }
+
+    // Backwards compatibility shim
+    var configuration;
+    if (config.firebase_uri) {
+        configuration.databaseURL = config.firebase_uri;
+    } else if (!config.databaseURL) {
+        throw new Error('databaseURL is required.');
+    }   else {
+        configuration = config;
+    }
+
+    var app = firebase.initializeApp(config),
+        database = app.database(),
+        rootRef = database.ref(),
         teamsRef = rootRef.child('teams'),
         usersRef = rootRef.child('users'),
         channelsRef = rootRef.child('channels');
@@ -41,8 +57,9 @@ module.exports = function(config) {
 function get(firebaseRef) {
     return function(id, cb) {
         firebaseRef.child(id).once('value').then(function(snapshot) {
-          cb(snapshot.val());
-        });
+            cb(null,snapshot.val());
+        },
+		cb);
     };
 }
 
@@ -80,6 +97,6 @@ function all(firebaseRef) {
             });
 
             cb(null, list);
-        });
+        }, cb);
     };
 }
