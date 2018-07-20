@@ -11,7 +11,7 @@ Make sure everything you store has an `id` property, that's what you'll use to l
 
 ```
 var Botkit = require('botkit'),
-    firebaseStorage = require('botkit-storage-firebase')({firebase_uri: '...'}),
+    firebaseStorage = require('botkit-storage-firebase')({databaseURL: '...'}),
     controller = Botkit.slackbot({
         storage: firebaseStorage
     });

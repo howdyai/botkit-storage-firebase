@@ -13,7 +13,7 @@ module.exports = function(config) {
     }
 
     // Backwards compatibility shim
-    var configuration;
+    var configuration = {};
     if (config.firebase_uri) {
         configuration.databaseURL = config.firebase_uri;
     } else if (!config.databaseURL) {
