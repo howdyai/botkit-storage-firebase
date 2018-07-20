@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/howdyai/botkit-storage-firebase#readme",
   "dependencies": {
-    "firebase": "^2.3.2"
+    "firebase": "^3.0.4"
   },
   "devDependencies": {
     "istanbul": "^0.4.1",

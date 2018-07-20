@@ -6,6 +6,8 @@ require('should-sinon');
 
 describe('Firebase', function() {
     var firebaseMock,
+        appMock,
+        databaseMock,
         childMock,
         rootRefMock,
         refMock,
@@ -26,7 +28,17 @@ describe('Firebase', function() {
             child: sinon.stub().returns(refMock)
         };
 
-        firebaseMock = sinon.stub().returns(rootRefMock);
+        databaseMock = {
+            ref: sinon.stub().returns(rootRefMock)
+        };
+
+        appMock = {
+            database: sinon.stub().returns(databaseMock)
+        };
+
+        firebaseMock = {
+            initializeApp: sinon.stub().returns(appMock)
+        };
 
         Storage = proxyquire('../src/index', {
             firebase: firebaseMock
@@ -36,16 +48,16 @@ describe('Firebase', function() {
     describe('init', function() {
 
         it('should require a config', function() {
-            Storage.should.throw('firebase_uri is required.');
+            Storage.should.throw('configuration is required.');
         });
 
-        it('should require firebase_uri', function() {
-            (function() {Storage({});}).should.throw('firebase_uri is required.');
+        it('should require databaseURL', function() {
+            (function() {Storage({});}).should.throw('databaseURL is required.');
         });
 
-        it('should initialize firebase with uri', function() {
-            Storage({firebase_uri: 'crystalbluepersuation'});
-            firebaseMock.should.be.calledWith('crystalbluepersuation');
+        it('should initialize firebase with databaseURL', function() {
+            Storage({databaseURL: 'crystalbluepersuation'});
+            firebaseMock.initializeApp.should.be.calledWith({databaseURL: 'crystalbluepersuation'});
         });
     });
 
@@ -56,7 +68,7 @@ describe('Firebase', function() {
                 config;
 
             beforeEach(function() {
-                config = {firebase_uri: 'right_here'};
+                config = {databaseURL: 'right_here'};
 
                 record = {};
                 records = {
@@ -66,7 +78,11 @@ describe('Firebase', function() {
 
             it('should get records', function() {
                 var cb = sinon.stub();
-                childMock.once.callsArgWith(1, records);
+                childMock.once.returns({
+                    then: function(callback) {
+                        return callback(records);
+                    }
+                });
 
                 Storage(config)[method].get('walterwhite', cb);
                 childMock.once.firstCall.args[0].should.equal('value');
@@ -78,7 +94,11 @@ describe('Firebase', function() {
                 var cb = sinon.stub(),
                     err = new Error('OOPS');
 
-                childMock.once.callsArgWith(2, err);
+                childMock.once.returns({
+                    then: function(success, error) {
+                        return error(err);
+                    }
+                });
 
                 Storage(config)[method].get('walterwhite', cb);
                 childMock.once.firstCall.args[0].should.equal('value');
@@ -91,7 +111,7 @@ describe('Firebase', function() {
             var config;
 
             beforeEach(function() {
-                config = {firebase_uri: 'right_here'};
+                config = {databaseURL: 'right_here'};
             });
 
             it('should call firebase update', function() {
@@ -99,8 +119,15 @@ describe('Firebase', function() {
                     data = {id: 'walterwhite'},
                     updateObj = {walterwhite: data};
 
+                refMock.update.returns({
+                    then: function(callback) {
+                        return callback();
+                    }
+                });
+
                 Storage(config)[method].save(data, cb);
-                refMock.update.should.be.calledWith(updateObj, cb);
+                refMock.update.should.be.calledWith(updateObj);
+                cb.should.be.calledOnce();
             });
         });
 
@@ -111,7 +138,7 @@ describe('Firebase', function() {
                 config;
 
             beforeEach(function() {
-                config = {firebase_uri: 'right_here'};
+                config = {databaseURL: 'right_here'};
 
                 record = {
                     'walterwhite': {id: 'walterwhite', name: 'heisenberg'},
@@ -127,8 +154,11 @@ describe('Firebase', function() {
                 var cb = sinon.stub(),
                     result = [record.walterwhite, record.jessepinkman];
 
-                refMock.once.callsArgWith(1, records);
-
+                refMock.once.returns({
+                    then: function(callback) {
+                        return callback(records);
+                    }
+                });
                 Storage(config)[method].all(cb);
                 refMock.once.firstCall.args[0].should.equal('value');
                 records.val.should.be.called;
@@ -139,7 +169,11 @@ describe('Firebase', function() {
                 var cb = sinon.stub();
 
                 records.val.returns(undefined);
-                refMock.once.callsArgWith(1, records);
+                refMock.once.returns({
+                    then: function(callback) {
+                        return callback(records);
+                    }
+                });
 
                 Storage(config)[method].all(cb);
                 refMock.once.firstCall.args[0].should.equal('value');
@@ -151,7 +185,11 @@ describe('Firebase', function() {
                 var cb = sinon.stub(),
                     err = new Error('OOPS');
 
-                refMock.once.callsArgWith(2, err);
+                refMock.once.returns({
+                    then: function(success, error) {
+                        return error(err);
+                    }
+                });
 
                 Storage(config)[method].all(cb);
                 refMock.once.firstCall.args[0].should.equal('value');
