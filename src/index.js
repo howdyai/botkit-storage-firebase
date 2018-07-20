@@ -18,7 +18,7 @@ module.exports = function(config) {
         configuration.databaseURL = config.firebase_uri;
     } else if (!config.databaseURL) {
         throw new Error('databaseURL is required.');
-    }   else {
+    } else {
         configuration = config;
     }
 
@@ -57,9 +57,9 @@ module.exports = function(config) {
 function get(firebaseRef) {
     return function(id, cb) {
         firebaseRef.child(id).once('value').then(function(snapshot) {
-            cb(null,snapshot.val());
-        },
-		cb);
+                cb(null, snapshot.val());
+            },
+            cb);
     };
 }
 

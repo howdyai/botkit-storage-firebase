@@ -1,6 +1,6 @@
 {
   "name": "botkit-storage-firebase",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Firebase driver for Botkit",
   "main": "index.js",
   "scripts": {
